@@ -1,0 +1,8 @@
+*.swp
+*~
+
+# OCaml ignore
+*.cmi
+*.cmx
+*.o
+*.prog
