@@ -1,5 +1,5 @@
-OBJS=boyer.cmx
-PROG=boyer.prog
+OBJS=moore.cmx
+PROG=moore.prog
 CC=ocamlopt
 
 all: $(PROG)

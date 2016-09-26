@@ -42,7 +42,7 @@ let boyer_moore_search cpat haystack offset =
     let i = ref offset in
     let result = ref (-1) in
     while !result < 0 && !i <= n-m do
-        Printf.printf "%s\n%s%s\n" haystack (String.make !i ' ') cpat.pat;
+        (* Printf.printf "%s\n%s%s\n" haystack (String.make !i ' ') cpat.pat; *)
         let j = ref (m-1) in
         while !j >= 0 && cpat.pat.[!j] == haystack.[!i + !j] do
             j := !j - 1;
@@ -55,14 +55,33 @@ let boyer_moore_search cpat haystack offset =
     !result
 ;;
 
-let testSingle (p, t, r) = (boyer_moore_search (compile p) t 0) == r ;;
+let read_input input =
+    let str = ref "" in
+    try
+        while true do
+            str := !str ^ (input_line input);
+        done;
+        !str;
+    with End_of_file -> !str;; 
 
-let tests = [("EXAMPLE", "HERE IS A SIMPLE EXAMPLE", 17);
-             ("EAAMPLEAMPLE", "HERE IS A SIMPLE EAAMPLEAMPLE", 17);
-             ("EXAMPLE", "HERE IS A SIMPLE EXAMPLA", -1);
-             ("ABCDABD", "ABC ABCDAB ABCDABCDABDE", 15);
-             ("EXAMPLS", "HERE IEXAMPLS", 6);
-             ("AMPNAM", "AAANAMPNAM", 4)
-            ] in
-Printf.printf "%b\n" (List.fold_right (fun x y -> x && y) (List.map testSingle tests) true)
+let main arg =
+    let n = Array.length arg in
+    let pat = ref "" in
+    let input = ref "" in
+    if n = 2 then begin
+        pat := arg.(1);
+        input := read_input stdin;
+    end else if n = 3 then begin
+        pat := arg.(1);
+        let file = open_in arg.(2) in input := read_input file;
+        close_in file;
+    end else failwith "Invalid number of arguments";
+    let cpat = compile !pat in
+    let off = ref (-2) in
+    while !off <> (-1) do
+        off := boyer_moore_search cpat !input (!off+1);
+        if !off >= 0 then Printf.printf "%d\n" !off;
+    done;;
+
+main Sys.argv;;
 
