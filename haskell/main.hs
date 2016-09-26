@@ -1,9 +1,8 @@
-module BoyerMoore where
-
 import qualified Data.ByteString as BS
+import Data.ByteString.Char8 (pack)
 import qualified Data.Vector as V
 import Data.Char (ord)
-import Debug.Trace
+import System.Environment (getArgs)
 
 data CompiledPattern = CompiledPattern BS.ByteString (V.Vector Int) (V.Vector Int) deriving Show
 compute :: BS.ByteString -> CompiledPattern
@@ -27,7 +26,6 @@ compute p =
 
 search :: CompiledPattern -> BS.ByteString -> Int -> Int
 search cp@(CompiledPattern p bc gs) t i =
-    trace (show t ++ "\n" ++ replicate i ' ' ++ show p) $
     if i <= n-m then
         let j = f (m-1) in
         if j <= -1 then i
@@ -50,4 +48,17 @@ test =
                 ] in
     print . all testSingle $ tests
     where testSingle (p, t, r) = (search (compute . packStr $ p) (packStr t) 0) == r
+
+checkAll :: BS.ByteString -> Int -> BS.ByteString -> IO ()
+checkAll pat off str = if i > 0 then putStrLn (show i) >> checkAll pat (i+1) str else return ()
+ where cpat = compute pat
+       i = search cpat str off
+
+main :: IO ()
+main = do
+    args <- getArgs
+    case args of
+      pat : []        -> pack <$> getContents   >>= checkAll (pack pat) 0
+      pat : file : [] -> pack <$> readFile file >>= checkAll (pack pat) 0
+      _               -> putStrLn "Invalid arguments"
 
